@@ -1,0 +1,287 @@
+<app-page-breadcrumb pageTitle="Gestion des Utilisateurs" />
+
+<div class="space-y-6">
+  <!-- Card Principale -->
+  <app-component-card 
+    title="Utilisateurs"
+    desc="Gérez les utilisateurs de votre plateforme"
+  >
+    <!-- Boutons d'actions -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <!-- Recherche -->
+      <input
+        [(ngModel)]="searchTerm"
+        type="text"
+        placeholder="Rechercher par nom, prénom ou email..."
+        class="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-gray-900 dark:text-white w-full sm:w-96"
+      />
+      <!-- Bouton Ajouter -->
+      <button
+        (click)="openCreateModal()"
+        class="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition flex items-center gap-2 whitespace-nowrap"
+      >
+        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Ajouter
+      </button>
+    </div>
+
+    <!-- Tableau -->
+    @if (isLoading) {
+      <div class="flex justify-center items-center h-96">
+        <div class="text-gray-500">Chargement...</div>
+      </div>
+    } @else if (filteredUtilisateurs.length === 0) {
+      <div class="flex flex-col justify-center items-center h-96 text-gray-500">
+        <p class="text-lg font-medium">Aucun utilisateur trouvé</p>
+      </div>
+    } @else {
+      <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+        <div class="max-w-full overflow-x-auto">
+          <table class="min-w-full">
+            <!-- Table Header -->
+            <thead class="border-b border-gray-100 dark:border-white/[0.05]">
+              <tr>
+                <th class="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Nom</th>
+                <th class="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Email</th>
+                <th class="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Téléphone</th>
+                <th class="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Rôle</th>
+                <th class="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Statut</th>
+                <th class="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Actions</th>
+              </tr>
+            </thead>
+            <!-- Table Body -->
+            <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
+              @for (utilisateur of filteredUtilisateurs; track utilisateur.id) {
+                <tr>
+                  <td class="px-5 py-4 sm:px-6 text-start">
+                    <span class="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                      {{ utilisateur.prenom }} {{ utilisateur.nom }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {{ utilisateur.email }}
+                  </td>
+                  <td class="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {{ utilisateur.telephone || '-' }}
+                  </td>
+                  <td class="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    <app-badge
+                      size="sm"
+                      [color]="getRoleBadgeColor(utilisateur.role)"
+                    >
+                      {{ utilisateur.role }}
+                    </app-badge>
+                  </td>
+                  <td class="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    <app-badge
+                      size="sm"
+                      [color]="getStatutBadgeColor(utilisateur.statut)"
+                    >
+                      {{ utilisateur.statut }}
+                    </app-badge>
+                  </td>
+                  <td class="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    <div class="flex gap-2">
+                      <button
+                        (click)="openEditModal(utilisateur)"
+                        class="p-2 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg transition"
+                        title="Éditer"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 17.25V21h3.75L17.81 9.94m-4.73-4.73L19.74 3.73a2.5 2.5 0 013.54 3.54L16.04 8.51m-4.73-4.73l1.36 1.36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button
+                        (click)="openDeleteModal(utilisateur)"
+                        class="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900 rounded-lg transition"
+                        title="Supprimer"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3m-7 0h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  </app-component-card>
+</div>
+
+<!-- Modal Création/Édition -->
+@if (showModal) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg max-w-md w-full">
+      <!-- En-tête modal -->
+      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+          {{ isEditMode ? 'Modifier l\'utilisateur' : 'Créer un utilisateur' }}
+        </h2>
+        <button
+          (click)="closeModal()"
+          class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Contenu modal -->
+      <div class="p-6 space-y-4">
+        <!-- Prénom -->
+        <div>
+          <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+            Prénom *
+          </label>
+          <input
+            [(ngModel)]="formData.prenom"
+            type="text"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-gray-800 dark:text-white"
+            [class.border-red-500]="errors['prenom']"
+          />
+          @if (errors['prenom']) {
+            <p class="text-red-500 text-sm mt-1">{{ errors['prenom'] }}</p>
+          }
+        </div>
+
+        <!-- Nom -->
+        <div>
+          <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+            Nom *
+          </label>
+          <input
+            [(ngModel)]="formData.nom"
+            type="text"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-gray-800 dark:text-white"
+            [class.border-red-500]="errors['nom']"
+          />
+          @if (errors['nom']) {
+            <p class="text-red-500 text-sm mt-1">{{ errors['nom'] }}</p>
+          }
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+            Email *
+          </label>
+          <input
+            [(ngModel)]="formData.email"
+            type="email"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-gray-800 dark:text-white"
+            [class.border-red-500]="errors['email']"
+          />
+          @if (errors['email']) {
+            <p class="text-red-500 text-sm mt-1">{{ errors['email'] }}</p>
+          }
+        </div>
+
+        <!-- Téléphone -->
+        <div>
+          <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+            Téléphone
+          </label>
+          <input
+            [(ngModel)]="formData.telephone"
+            type="tel"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-gray-800 dark:text-white"
+          />
+        </div>
+
+        <!-- Rôle -->
+        <div>
+          <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+            Rôle
+          </label>
+          <select
+            [(ngModel)]="formData.role"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-gray-800 dark:text-white"
+          >
+            <option value="user">Utilisateur</option>
+            <option value="moderator">Modérateur</option>
+            <option value="admin">Administrateur</option>
+          </select>
+        </div>
+
+        <!-- Statut -->
+        <div>
+          <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+            Statut
+          </label>
+          <select
+            [(ngModel)]="formData.statut"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 dark:bg-gray-800 dark:text-white"
+          >
+            <option value="actif">Actif</option>
+            <option value="inactif">Inactif</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Boutons -->
+      <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+        <button
+          (click)="closeModal()"
+          class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+        >
+          Annuler
+        </button>
+        <button
+          (click)="saveUtilisateur()"
+          class="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition"
+        >
+          {{ isEditMode ? 'Modifier' : 'Créer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal Confirmation Suppression -->
+@if (showDeleteModal) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg max-w-sm w-full">
+      <!-- En-tête -->
+      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Confirmer la suppression</h2>
+      </div>
+
+      <!-- Contenu -->
+      <div class="p-6">
+        <p class="text-gray-600 dark:text-gray-400 mb-4">
+          Êtes-vous sûr de vouloir supprimer l'utilisateur
+          <span class="font-semibold text-gray-900 dark:text-white">
+            {{ selectedUtilisateur?.prenom }} {{ selectedUtilisateur?.nom }}
+          </span> ?
+        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-500">
+          Cette action ne peut pas être annulée.
+        </p>
+      </div>
+
+      <!-- Boutons -->
+      <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+        <button
+          (click)="closeDeleteModal()"
+          class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+        >
+          Annuler
+        </button>
+        <button
+          (click)="deleteUtilisateur()"
+          class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+        >
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
