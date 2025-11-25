@@ -1,0 +1,185 @@
+<div class="space-y-6">
+  <app-page-breadcrumb pageTitle="Véhicules" />
+
+  <app-component-card title="Gestion des Véhicules" desc="Gérer le parc automobile, suivre les kilométrages et les maintenances.">
+    <!-- Search and Add Button -->
+    <div class="flex flex-col sm:flex-row gap-4 mb-6">
+      <input
+        type="text"
+        placeholder="Rechercher par immatriculation..."
+        [(ngModel)]="searchTerm"
+        class="flex-1 px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button
+        (click)="openCreateModal()"
+        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 transition"
+      >
+        + Ajouter
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-gray-700 dark:text-gray-300">
+        <thead class="bg-gray-100 dark:bg-gray-700 border-b">
+          <tr>
+            <th class="px-4 py-3 text-left">Immatriculation</th>
+            <th class="px-4 py-3 text-left">Kilométrage</th>
+            <th class="px-4 py-3 text-left">Carburant</th>
+            <th class="px-4 py-3 text-left">Disponibilité</th>
+            <th class="px-4 py-3 text-left">Dernière Visite</th>
+            <th class="px-4 py-3 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let vehicule of filtered" class="border-b hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td class="px-4 py-3 font-semibold">{{ vehicule.immatriculation }}</td>
+            <td class="px-4 py-3">{{ vehicule.kilometrage_actuel }} km</td>
+            <td class="px-4 py-3">
+              <app-badge [color]="getCarburantBadgeColor(vehicule.carburant)">
+                {{ vehicule.carburant }}
+              </app-badge>
+            </td>
+            <td class="px-4 py-3">
+              <app-badge [color]="getDisponibilityBadgeColor(vehicule.estDisponibilite)">
+                {{ vehicule.estDisponibilite ? 'Disponible' : 'Non disponible' }}
+              </app-badge>
+            </td>
+            <td class="px-4 py-3">{{ vehicule.date_visite || '-' }}</td>
+            <td class="px-4 py-3 text-center space-x-2">
+              <button
+                (click)="openEditModal(vehicule)"
+                class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+              >
+                Modifier
+              </button>
+              <button
+                (click)="openDeleteModal(vehicule)"
+                class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
+              >
+                Supprimer
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filtered.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+      Aucun véhicule trouvé
+    </div>
+  </app-component-card>
+</div>
+
+<!-- Create/Edit Modal -->
+<div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold mb-4 dark:text-white">
+      {{ isEditMode ? 'Modifier Véhicule' : 'Ajouter Véhicule' }}
+    </h3>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-2 dark:text-gray-300">Immatriculation *</label>
+        <input
+          type="text"
+          [(ngModel)]="formData.immatriculation"
+          placeholder="ex: BF-2023-A-001"
+          class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <span class="text-red-500 text-xs" *ngIf="errors['immatriculation']">{{ errors['immatriculation'] }}</span>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2 dark:text-gray-300">Kilométrage Actuel</label>
+        <input
+          type="number"
+          [(ngModel)]="formData.kilometrage_actuel"
+          min="0"
+          class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <span class="text-red-500 text-xs" *ngIf="errors['kilometrage_actuel']">{{ errors['kilometrage_actuel'] }}</span>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2 dark:text-gray-300">Carburant</label>
+        <select
+          [(ngModel)]="formData.carburant"
+          class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="ESS">Essence</option>
+          <option value="DIE">Diesel</option>
+          <option value="HYB">Hybride</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2 dark:text-gray-300">Modèle ID</label>
+        <input
+          type="number"
+          [(ngModel)]="formData.modele_id"
+          min="1"
+          class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2 dark:text-gray-300">Date Mise en Circulation</label>
+        <input
+          type="date"
+          [(ngModel)]="formData.mise_en_circulation"
+          class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div class="flex items-center">
+        <input
+          type="checkbox"
+          [(ngModel)]="formData.estDisponibilite"
+          class="h-4 w-4 rounded"
+        />
+        <label class="ml-2 text-sm font-medium dark:text-gray-300">Disponible</label>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mt-6">
+      <button
+        (click)="saveData()"
+        class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
+      >
+        {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+      </button>
+      <button
+        (click)="closeModal()"
+        class="flex-1 px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+      >
+        Annuler
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div *ngIf="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4">
+    <h3 class="text-lg font-semibold mb-4 dark:text-white">Confirmer la suppression</h3>
+    <p class="text-gray-600 dark:text-gray-400 mb-6">
+      Êtes-vous sûr de vouloir supprimer le véhicule <strong>{{ selectedVehicule?.immatriculation }}</strong>?
+    </p>
+    <div class="flex gap-3">
+      <button
+        (click)="deleteData()"
+        class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"
+      >
+        Supprimer
+      </button>
+      <button
+        (click)="closeDeleteModal()"
+        class="flex-1 px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+      >
+        Annuler
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,207 @@
+<div class="space-y-6">
+  <app-page-breadcrumb pageTitle="Conducteurs" />
+
+  <app-component-card title="Gestion des Conducteurs" desc="Créer, modifier et gérer les conducteurs du parc automobile.">
+    <!-- Search and Add Button -->
+    <div class="flex flex-col sm:flex-row gap-4 mb-6">
+      <input
+        type="text"
+        placeholder="Rechercher par nom, prénom ou email..."
+        [(ngModel)]="searchTerm"
+        class="flex-1 px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button
+        (click)="openCreateModal()"
+        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 transition"
+      >
+        + Ajouter
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-gray-700 dark:text-gray-300">
+        <thead class="bg-gray-100 dark:bg-gray-700 border-b">
+          <tr>
+            <th class="px-4 py-3 text-left">Nom</th>
+            <th class="px-4 py-3 text-left">Prénom</th>
+            <th class="px-4 py-3 text-left">Email</th>
+            <th class="px-4 py-3 text-left">Téléphone</th>
+            <th class="px-4 py-3 text-left">Statut</th>
+            <th class="px-4 py-3 text-left">Disponibilité</th>
+            <th class="px-4 py-3 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let conducteur of filtered" class="border-b hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td class="px-4 py-3">{{ conducteur.nom }}</td>
+            <td class="px-4 py-3">{{ conducteur.prenom }}</td>
+            <td class="px-4 py-3">{{ conducteur.email || '-' }}</td>
+            <td class="px-4 py-3">{{ conducteur.telephone || '-' }}</td>
+            <td class="px-4 py-3">
+              <app-badge [color]="getStatutBadgeColor(conducteur.statut)">
+                {{ conducteur.statut | uppercase }}
+              </app-badge>
+            </td>
+            <td class="px-4 py-3">
+              <app-badge [color]="getDisponibilityBadgeColor(conducteur.disponible)">
+                {{ conducteur.disponible ? 'Disponible' : 'Non disponible' }}
+              </app-badge>
+            </td>
+            <td class="px-4 py-3 text-center space-x-2">
+              <button
+                (click)="openEditModal(conducteur)"
+                class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+              >
+                Modifier
+              </button>
+              <button
+                (click)="openDeleteModal(conducteur)"
+                class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
+              >
+                Supprimer
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filtered.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+      Aucun conducteur trouvé
+    </div>
+  </app-component-card>
+</div>
+
+<!-- Create/Edit Modal -->
+<div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+    <h3 class="text-lg font-semibold mb-4 dark:text-white">
+      {{ isEditMode ? 'Modifier Conducteur' : 'Ajouter Conducteur' }}
+    </h3>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-2 dark:text-gray-300">Nom *</label>
+        <input
+          type="text"
+          [(ngModel)]="formData.nom"
+          placeholder="Nom du conducteur"
+          class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <span class="text-red-500 text-xs" *ngIf="errors['nom']">{{ errors['nom'] }}</span>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2 dark:text-gray-300">Prénom *</label>
+        <input
+          type="text"
+          [(ngModel)]="formData.prenom"
+          placeholder="Prénom du conducteur"
+          class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <span class="text-red-500 text-xs" *ngIf="errors['prenom']">{{ errors['prenom'] }}</span>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2 dark:text-gray-300">Email</label>
+        <input
+          type="email"
+          [(ngModel)]="formData.email"
+          placeholder="email@example.com"
+          class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2 dark:text-gray-300">Téléphone</label>
+        <input
+          type="tel"
+          [(ngModel)]="formData.telephone"
+          placeholder="+226 XX XX XX XX"
+          class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2 dark:text-gray-300">Nationalité</label>
+        <input
+          type="text"
+          [(ngModel)]="formData.nationalite"
+          placeholder="Nationalité"
+          class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2 dark:text-gray-300">Statut</label>
+        <select
+          [(ngModel)]="formData.statut"
+          class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="actif">Actif</option>
+          <option value="inactif">Inactif</option>
+        </select>
+      </div>
+
+      <div class="flex items-center">
+        <input
+          type="checkbox"
+          [(ngModel)]="formData.disponible"
+          class="h-4 w-4 rounded"
+        />
+        <label class="ml-2 text-sm font-medium dark:text-gray-300">Disponible</label>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2 dark:text-gray-300">Notes</label>
+        <textarea
+          [(ngModel)]="formData.notes"
+          placeholder="Notes supplémentaires"
+          class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          rows="3"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mt-6">
+      <button
+        (click)="saveData()"
+        class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
+      >
+        {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+      </button>
+      <button
+        (click)="closeModal()"
+        class="flex-1 px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+      >
+        Annuler
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div *ngIf="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4">
+    <h3 class="text-lg font-semibold mb-4 dark:text-white">Confirmer la suppression</h3>
+    <p class="text-gray-600 dark:text-gray-400 mb-6">
+      Êtes-vous sûr de vouloir supprimer <strong>{{ selectedConducteur?.prenom }} {{ selectedConducteur?.nom }}</strong>?
+    </p>
+    <div class="flex gap-3">
+      <button
+        (click)="deleteData()"
+        class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"
+      >
+        Supprimer
+      </button>
+      <button
+        (click)="closeDeleteModal()"
+        class="flex-1 px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+      >
+        Annuler
+      </button>
+    </div>
+  </div>
+</div>

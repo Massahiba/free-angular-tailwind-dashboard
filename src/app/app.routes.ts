@@ -19,6 +19,15 @@ import { SignInComponent } from './pages/auth-pages/sign-in/sign-in.component';
 import { SignUpComponent } from './pages/auth-pages/sign-up/sign-up.component';
 import { CalenderComponent } from './pages/calender/calender.component';
 import { UtilisateursComponent } from './pages/utilisateurs/utilisateurs.component';
+import { ConducteursComponent } from './pages/conducteurs/conducteurs.component';
+import { ModelesComponent } from './pages/modeles/modeles.component';
+import { VehiculesComponent } from './pages/vehicules/vehicules.component';
+import { DirectionsComponent } from './pages/directions/directions.component';
+import { MissionsComponent } from './pages/missions/missions.component';
+import { VidangesComponent } from './pages/vidanges/vidanges.component';
+import { VisistesTechniquesComponent } from './pages/visites-techniques/visites-techniques.component';
+import { PannesComponent } from './pages/pannes/pannes.component';
+import { DotationsCarburantComponent } from './pages/dotations-carburant/dotations-carburant.component';
 
 export const routes: Routes = [
   {
@@ -103,10 +112,65 @@ export const routes: Routes = [
         component:VideosComponent,
         title:'Angular Videos Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
+      //utilisateurs
       {
         path:'utilisateurs',
         component:UtilisateursComponent,
         title:'Utilisateurs | O\'ParcGest - Gestion des utilisateurs'
+      },
+      //conducteurs
+      {
+        path:'conducteurs',
+        component:ConducteursComponent,
+        title:'Conducteurs | O\'ParcGest - Gestion des conducteurs'
+      },
+      //modeles
+      {
+        path:'modeles',
+        component:ModelesComponent,
+        title:'Modèles | O\'ParcGest - Gestion des modèles de véhicules'
+      },
+      //vehicules
+      {
+        path:'vehicules',
+        component:VehiculesComponent,
+        title:'Véhicules | O\'ParcGest - Gestion du parc automobile'
+      },
+      //directions
+      {
+        path:'directions',
+        component:DirectionsComponent,
+        title:'Directions | O\'ParcGest - Gestion des directions'
+      },
+      //missions
+      {
+        path:'missions',
+        component:MissionsComponent,
+        title:'Missions | O\'ParcGest - Gestion des missions'
+      },
+      //vidanges
+      {
+        path:'vidanges',
+        component:VidangesComponent,
+        title:'Vidanges | O\'ParcGest - Suivi des vidanges'
+      },
+      //visites-techniques
+      {
+        path:'visites-techniques',
+        component:VisistesTechniquesComponent,
+        title:'Visites Techniques | O\'ParcGest - Contrôles techniques'
+      },
+      //pannes
+      {
+        path:'pannes',
+        component:PannesComponent,
+        title:'Pannes | O\'ParcGest - Gestion des pannes'
+      },
+      //dotations-carburant
+      {
+        path:'dotations-carburant',
+        component:DotationsCarburantComponent,
+        title:'Dotations Carburant | O\'ParcGest - Allocation de carburant'
       },
     ]
   },

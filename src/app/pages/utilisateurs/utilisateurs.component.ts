@@ -31,7 +31,7 @@ interface Utilisateur {
 })
 export class UtilisateursComponent implements OnInit {
 
-  // 📊 DONNÉES
+  //  DONNÉES
   utilisateurs: Utilisateur[] = [];
   isLoading: boolean = false;
   searchTerm: string = '';
@@ -61,7 +61,7 @@ export class UtilisateursComponent implements OnInit {
     this.loadUtilisateurs();
   }
 
-  // 📥 CHARGER LES UTILISATEURS
+  //  CHARGER LES UTILISATEURS
   loadUtilisateurs() {
     this.isLoading = true;
     // Données de démonstration (à remplacer par l'API)
@@ -69,7 +69,7 @@ export class UtilisateursComponent implements OnInit {
     this.isLoading = false;
   }
 
-  // 🔍 FILTRER LES UTILISATEURS
+  // FILTRER LES UTILISATEURS
   get filteredUtilisateurs(): Utilisateur[] {
     if (!this.searchTerm) {
       return this.utilisateurs;
@@ -81,7 +81,7 @@ export class UtilisateursComponent implements OnInit {
     );
   }
 
-  // ➕ OUVRIR MODAL CRÉATION
+  //  OUVRIR MODAL CRÉATION
   openCreateModal() {
     this.isEditMode = false;
     this.selectedUtilisateur = null;
@@ -89,7 +89,7 @@ export class UtilisateursComponent implements OnInit {
     this.showModal = true;
   }
 
-  // ✏️ OUVRIR MODAL ÉDITION
+  //  OUVRIR MODAL ÉDITION
   openEditModal(utilisateur: Utilisateur) {
     this.isEditMode = true;
     this.selectedUtilisateur = utilisateur;
@@ -97,7 +97,7 @@ export class UtilisateursComponent implements OnInit {
     this.showModal = true;
   }
 
-  // 📝 VALIDER LE FORMULAIRE
+  //  VALIDER LE FORMULAIRE
   validateForm(): boolean {
     this.errors = {};
     
@@ -116,13 +116,13 @@ export class UtilisateursComponent implements OnInit {
     return Object.keys(this.errors).length === 0;
   }
 
-  // ✉️ VÉRIFIER EMAIL
+  //  VÉRIFIER EMAIL
   private isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
 
-  // 💾 SAUVEGARDER (CRÉER OU ÉDITER)
+  //  SAUVEGARDER (CRÉER OU ÉDITER)
   saveUtilisateur() {
     if (!this.validateForm()) {
       return;
@@ -147,13 +147,13 @@ export class UtilisateursComponent implements OnInit {
     this.closeModal();
   }
 
-  // 🗑️ OUVRIR CONFIRMATION SUPPRESSION
+  //  OUVRIR CONFIRMATION SUPPRESSION
   openDeleteModal(utilisateur: Utilisateur) {
     this.selectedUtilisateur = utilisateur;
     this.showDeleteModal = true;
   }
 
-  // ❌ SUPPRIMER UTILISATEUR
+  //  SUPPRIMER UTILISATEUR
   deleteUtilisateur() {
     if (this.selectedUtilisateur?.id) {
       this.utilisateurService.deleteUtilisateur(this.selectedUtilisateur.id);
@@ -163,19 +163,19 @@ export class UtilisateursComponent implements OnInit {
     }
   }
 
-  // ❌ FERMER MODAL
+  //  FERMER MODAL
   closeModal() {
     this.showModal = false;
     this.resetForm();
   }
 
-  // ❌ FERMER MODAL SUPPRESSION
+  // FERMER MODAL SUPPRESSION
   closeDeleteModal() {
     this.showDeleteModal = false;
     this.selectedUtilisateur = null;
   }
 
-  // 🔄 RÉINITIALISER LE FORMULAIRE
+  //  RÉINITIALISER LE FORMULAIRE
   private resetForm() {
     this.formData = {
       nom: '',
@@ -188,7 +188,7 @@ export class UtilisateursComponent implements OnInit {
     this.errors = {};
   }
 
-  // 🎨 CSS DYNAMIQUE POUR LE RÔLE (Badge component)
+  //  CSS DYNAMIQUE POUR LE RÔLE (Badge component)
   getRoleBadgeColor(role: string): 'success' | 'warning' | 'error' | 'info' {
     switch(role) {
       case 'admin':
@@ -202,7 +202,7 @@ export class UtilisateursComponent implements OnInit {
     }
   }
 
-  // 🎨 CSS DYNAMIQUE POUR LE STATUT (Badge component)
+  //  CSS DYNAMIQUE POUR LE STATUT (Badge component)
   getStatutBadgeColor(statut: string): 'success' | 'warning' | 'error' | 'info' {
     return statut === 'actif' ? 'success' : 'error';
   }
